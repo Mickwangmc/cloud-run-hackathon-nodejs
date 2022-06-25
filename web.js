@@ -5,7 +5,8 @@ const bodyParser = require('body-parser');
 app.use(bodyParser.json());
 
 app.get('/', function (req, res) {
-  res.send('Let the battle begin!');
+  const time = new Date();
+  res.send('Let the battle begin!' + time);
 });
 
 app.post('/', function (req, res) {
