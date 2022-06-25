@@ -19,27 +19,42 @@ app.post('/', function (req, res) {
     arena: { dims, state }
   } = req.body;
 
-  const { x: myX, y: myY, direction: myDirection } = state[myId];
+  const { x: myX, y: myY, direction: myDirection, wasHit } = state[myId];
+
+  if (wasHit) {
+    // TODO: check direction
+    const moves = ['F', 'L', 'R'];
+    res.send(moves[Math.floor(Math.random() * moves.length)]);
+  }
+
   const enemyIds = Object.keys(state).filter(id => id !== myId);
-  
+
   let targetAt = null;
+  let targetDirection = [];
   console.log(`> myX: ${myX}, myY: ${myY}, myDirection: ${myDirection}`)
 
   // 1. Check is any enemy in hit range. If has, track its direction
-  enemyIds.forEach(id => {
-    const targetState = state[id];
 
-    if (myY - targetState.y <= 3 && myX === targetState.x) {
+  enemyIds.forEach(id => {
+    const { x: targetX, y: targetY } = state[id];
+
+    if (myY - targetY <= 3 && myX === targetX) {
       targetAt = "N"
-    } else if (myX - targetState.x <= 3 && myY === targetState.y) {
+      targetDirection.push("N");
+    } else if (targetX - myX <= 3 && myY === targetY) {
       targetAt = "E"
-    } else if (targetState.x - myX <= 3 && myY === targetState.y) {
+      targetDirection.push("E");
+    } else if (myX - targetX <= 3 && myY === targetY) {
       targetAt = "W"
-    } else if (targetState.y - myY <= 3 && myX === targetState.x) {
+      targetDirection.push("W");
+    } else if (targetY - myY <= 3 && myX === targetX) {
       targetAt = "S"
+      targetDirection.push("S");
     }
   })
   console.log(`>> targetAt: ${targetAt}`);
+  console.log(`>> targetDirection: ${targetDirection.join(",")}`);
+
   if (targetAt) {
     // 2. If any enemy target in hit range, decide hit or turn direction to it.
     const myDirectionIndex = DIRECTIONS.findIndex(ele => ele === myDirection);
@@ -58,6 +73,7 @@ app.post('/', function (req, res) {
     }
   } else {
     // 3. If no any enemy in attack range, decide go forward or turn direction
+    // TODO: to the direction without any enemy
     // 4. Maybe could chase the nearest one?
     // consider dimension and my position, and my direction
     const moves = ['F', 'L', 'R'];
