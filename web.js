@@ -30,13 +30,13 @@ app.post('/', function (req, res) {
     const targetState = state[id];
 
     if (myY - targetState.y <= 3) {
-      targetAt === "N"
+      targetAt = "N"
     } else if (myX - targetState.x <= 3) {
-      targetAt === "E"
+      targetAt = "E"
     } else if (targetState.x - myX <= 3) {
-      targetAt === "W"
+      targetAt = "W"
     } else if (targetState.y - myY <= 3) {
-      targetAt === "S"
+      targetAt = "S"
     }
   })
   console.log(`>> targetAt: ${targetAt}`);
