@@ -39,13 +39,13 @@ app.post('/', function (req, res) {
       targetAt === "S"
     }
   })
-
+  console.log(`>> targetAt: ${targetAt}`);
   if (targetAt) {
     // 2. If any enemy target in hit range, decide hit or turn direction to it.
     const myDirectionIndex = DIRECTIONS.findIndex(ele => ele === myDirection);
     const targetDirectionIndex = DIRECTIONS.findIndex(ele => ele === targetAt);
     const diff = myDirectionIndex - targetDirectionIndex;
-
+    console.log(`>> diff: ${diff}`)
     if (diff === 0) {
       // 2-1. In FRONT of me
       res.send("T");
