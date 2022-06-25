@@ -6,7 +6,7 @@ app.use(bodyParser.json());
 
 app.get('/', function (req, res) {
   const time = new Date();
-  res.send('Let the battle begin!' + time);
+  res.send('Let the battle begin! Build time:' + time.toTimeString());
 });
 
 app.post('/', function (req, res) {
