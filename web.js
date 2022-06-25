@@ -20,10 +20,11 @@ app.post('/', function (req, res) {
   } = req.body;
 
   const { x: myX, y: myY, direction: myDirection } = state[myId];
-
   const enemyIds = Object.keys(state).filter(id => id !== myId);
-
+  
   let targetAt = null;
+  console.log(`> initial targetAt: ${targetAt}`)
+  console.log(`> myX: ${myX}, myY: ${myY}, myDirection: ${myDirection}`)
 
   // 1. Check is any enemy in hit range. If has, track its direction
   enemyIds.forEach(id => {
