@@ -69,6 +69,17 @@ app.post('/', function (req, res) {
   let hasTargetInFront = false;
   let targetDirection = [];  // possible targets
   let hinderDirection = [];  // hinder my fallback
+
+  if (myX === 0) {
+    hinderDirection.push("E");
+  } else if (myX + 1 === dims[0]) {
+    hinderDirection.push("W");
+  } else if (myY === 0) {
+    hinderDirection.push("N");
+  } else if (myY + 1 === dims[1]) {
+    hinderDirection.push("S");
+  };
+
   console.log(`> myX: ${myX}, myY: ${myY}, myDirection: ${myDirection}, wasHit: ${wasHit}`)
   console.log(`> myRightDirection: ${myRightDirection}, myLeftDirection: ${myLeftDirection}`)
 
