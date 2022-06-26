@@ -128,26 +128,26 @@ app.post('/', function (req, res) {
   console.log(`>> hinderDirection: ${hinderDirection.join(",")}`);
   console.log(`>> highestScorePlayer is ${highestScorePlayer[0]}, score: ${highestScorePlayer[1]}, position: (${highestScorePlayer[2]}, ${highestScorePlayer[3]})`)
 
-  // Normal
-  // // 2. Decide run or hit
-  // if (wasHit) {
-  //   // 2-1. Now is under attack
-  //   if (hinderDirection.length === DIRECTIONS.length) {
-  //     // 2-1-1. Blocked every where, let's hit
-  //     res.send("T");
-  //     return;
-  //   } else if (hinderDirection.includes(myDirection)) {
-  //     // 2-1-2. FRONT is blocked, find other way to run
-  //     // If RIGHT hand side is blocked, TURN LEFT, otherwitse TURN RIGHT
-  //     res.send(hinderDirection.includes(myRightDirection) ? "L" : "R")
-  //     return;
-  //   } else {
-  //     // 2-1-3. FRONT is clear, adopt basic move.
-  //     res.send(myBasicMove);
-  //     return;
-  //   }
-  // }
+  // 2. Decide run or hit
+  if (wasHit) {
+    // 2-1. Now is under attack
+    if (hinderDirection.length === DIRECTIONS.length) {
+      // 2-1-1. Blocked every where, let's hit
+      res.send("T");
+      return;
+    } else if (hinderDirection.includes(myDirection)) {
+      // 2-1-2. FRONT is blocked, find other way to run
+      // If RIGHT hand side is blocked, TURN LEFT, otherwitse TURN RIGHT
+      res.send(hinderDirection.includes(myRightDirection) ? "L" : "R")
+      return;
+    } else {
+      // 2-1-3. FRONT is clear, adopt basic move.
+      res.send(myBasicMove);
+      return;
+    }
+  }
 
+  // Normal Mode
   // if (hasTargetInFront) {
   //   // 2-2. Now is not under attack, if has any target in FRONT, hit!
   //   res.send("T");
