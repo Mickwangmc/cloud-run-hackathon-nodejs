@@ -111,13 +111,16 @@ app.post('/', function (req, res) {
       if (hinderDirection.includes(myRightDirection)) {
         // RIGHT hand side is blocked, TURN LEFT
         res.send("L")
+        return;
       } else {
         // RIGHT hand side is clear, TURN RIGHT
         res.send("R");
+        return;
       }
     } else {
       // FRONT is clear, check is able MOVE FORWARD or not. If not, turn direction.
       res.send(myBasicMove);
+      return;
     }
   }
 
@@ -126,6 +129,7 @@ app.post('/', function (req, res) {
   if (hasTargetInFront) {
     // 2-2. Now is not under attack, if has any target in FRONT, hit!
     res.send("T");
+    return;
   }
 
   if (targetDirection.length > 0) {
@@ -133,12 +137,15 @@ app.post('/', function (req, res) {
     if (targetDirection.includes(myRightDirection)) {
       // RIGHT has
       res.send("R");
+      return;
     } else if (targetDirection.includes(myLeftDirection)) {
       // LEFT has
       res.send("L");
+      return;
     } else {
       // BACK has
       res.send("L");
+      return;
     }
   }
 
