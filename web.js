@@ -23,26 +23,46 @@ const getNextDirection = (myDirection, direction) => {
 }
 
 const getBasicMove = (myX, myY, myDirection, w, h) => {
-  // !! This will go around border till encounter enemy
+  // Check is able MOVE FORWARD or not. If not, turn direction.
+  // !! This will go around edge till encounter enemy
   if (myX === 0 && myDirection === "W") {
-    // At the left border
-    // res.send(myY === 0 ? "L" : "R");
+    // At the left edege
     return myY === 0 ? "L" : "R"
   } else if (myX + 1 === w && myDirection === "E") {
-    // At the right borded
-    // res.send(myY === 0 ? "R" : "L");
+    // At the right edge
     return myY === 0 ? "R" : "L"
   } else if (myY === 0 && myDirection === "N") {
-    // res.send(myX + 1 === w ? "L" : "R");
+    // At the top edge
     return myX + 1 === w ? "L" : "R"
   } else if (myY + 1 === h && myDirection === "S") {
-    // res.send(myX + 1 === w ? "R" : "L");
+    // At the bottom edge
     return myX + 1 === w ? "R" : "L"
   } else {
-    // res.send("F");
     return "F"
   }
 }
+
+const getInitialHinder = (myX, myY, w, h) => {
+  let result = [];
+
+  if (myX === 0) {
+    result.push("E");
+  }
+
+  if (myX + 1 === w) {
+    result.push("W");
+  }
+
+  if (myY === 0) {
+    result.push("N");
+  }
+
+  if (myY + 1 === h) {
+    result.push("S");
+  };
+
+  return result;
+};
 
 app.use(bodyParser.json());
 
@@ -52,7 +72,7 @@ app.get('/', function (req, res) {
 });
 
 app.post('/', function (req, res) {
-  console.log(req.body);
+  // console.log(req.body);
 
   const {
     _links: { self: { href: myId } },
@@ -65,45 +85,34 @@ app.post('/', function (req, res) {
   const myBasicMove = getBasicMove(myX, myY, myDirection, dims[0], dims[1])
   const enemyIds = Object.keys(state).filter(id => id !== myId);
 
-  // let targetAt = null;
   let hasTargetInFront = false;
   let targetDirection = [];  // possible targets
-  let hinderDirection = [];  // hinder my fallback
-
-  if (myX === 0) {
-    hinderDirection.push("E");
-  } else if (myX + 1 === dims[0]) {
-    hinderDirection.push("W");
-  } else if (myY === 0) {
-    hinderDirection.push("N");
-  } else if (myY + 1 === dims[1]) {
-    hinderDirection.push("S");
-  };
+  let hinderDirection = getInitialHinder(myX, myY, dims[0], dims[1]); // hinder my fallback
 
   console.log(`> myX: ${myX}, myY: ${myY}, myDirection: ${myDirection}, wasHit: ${wasHit}`)
-  console.log(`> myRightDirection: ${myRightDirection}, myLeftDirection: ${myLeftDirection}`)
+  console.log(`> myRightDirection: ${myRightDirection}, myLeftDirection: ${myLeftDirection}, myBasicMove: ${myBasicMove}`)
 
   // 1. Check if any one in my range and direction
   enemyIds.forEach(id => {
     const { x: targetX, y: targetY } = state[id];
 
     if (myY > targetY && (myY - targetY <= 3) && myX === targetX) {
-      // targetAt = "N"
+      // "N"
       if (myDirection === "N") hasTargetInFront = true;
       if (!targetDirection.includes("N")) targetDirection.push("N");
       if (myY - targetY === 1 && !hinderDirection.includes("N")) hinderDirection.push("N");
     } else if (targetX > myX && (targetX - myX <= 3) && myY === targetY) {
-      // targetAt = "E"
+      // "E"
       if (myDirection === "E") hasTargetInFront = true;
       if (!targetDirection.includes("E")) targetDirection.push("E");
       if (targetX - myX === 1 && !hinderDirection.includes("E")) hinderDirection.push("E");
     } else if (myX > targetX && (myX - targetX <= 3) && myY === targetY) {
-      // targetAt = "W"
+      // "W"
       if (myDirection === "W") hasTargetInFront = true;
       if (!targetDirection.includes("W")) targetDirection.push("W");
       if (myX - targetX === 1 && !hinderDirection.includes("W")) hinderDirection.push("W");
     } else if (targetY > myY && (targetY - myY <= 3) && myX === targetX) {
-      // targetAt = "S"
+      // "S"
       if (myDirection === "S") hasTargetInFront = true;
       if (!targetDirection.includes("S")) targetDirection.push("S");
       if (targetY - myY === 1 && !hinderDirection.includes("S")) hinderDirection.push("S");
@@ -115,27 +124,22 @@ app.post('/', function (req, res) {
 
   // 2. Decide run or hit
   if (wasHit) {
-    // 2-1. Now is under attack, run
-    if (hinderDirection.includes(myDirection)) {
-      // FRONT is blocked, find other way
-
-      if (hinderDirection.includes(myRightDirection)) {
-        // RIGHT hand side is blocked, TURN LEFT
-        res.send("L")
-        return;
-      } else {
-        // RIGHT hand side is clear, TURN RIGHT
-        res.send("R");
-        return;
-      }
+    // 2-1. Now is under attack
+    if (hinderDirection.length === DIRECTIONS.length) {
+      // 2-1-1. Blocked every where, let's hit
+      res.send("T");
+      return;
+    } else if (hinderDirection.includes(myDirection)) {
+      // 2-1-2. FRONT is blocked, find other way to run
+      // If RIGHT hand side is blocked, TURN LEFT, otherwitse TURN RIGHT
+      res.send(hinderDirection.includes(myRightDirection) ? "L" : "R")
+      return;
     } else {
-      // FRONT is clear, check is able MOVE FORWARD or not. If not, turn direction.
+      // 2-1-3. FRONT is clear, adopt basic move.
       res.send(myBasicMove);
       return;
     }
   }
-
-  // console.log(`>> targetAt: ${targetAt}`);
 
   if (hasTargetInFront) {
     // 2-2. Now is not under attack, if has any target in FRONT, hit!
@@ -149,22 +153,18 @@ app.post('/', function (req, res) {
       // RIGHT has
       res.send("R");
       return;
-    } else if (targetDirection.includes(myLeftDirection)) {
-      // LEFT has
-      res.send("L");
-      return;
     } else {
-      // BACK has
+      // (this includes targetDirection.includes(myLeftDirection) )
+      // LEFT or BACK has
       res.send("L");
       return;
     }
   }
 
   // 3. No target in any direction, basic move
+  // 4. Maybe could chase the nearest one?
   res.send(myBasicMove);
 
-  // 4. Maybe could chase the nearest one?
-  // consider dimension and my position, and my direction
   // const moves = ['F', 'L', 'R'];
   // res.send(moves[Math.floor(Math.random() * moves.length)]);
 });
