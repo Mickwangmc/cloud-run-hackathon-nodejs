@@ -91,17 +91,17 @@ app.post('/', function (req, res) {
       // targetAt = "N"
       if (myDirection === "N") hasTargetInFront = true;
       if (!targetDirection.includes("N")) targetDirection.push("N");
-      if (myY - targetY === 1 && hinderDirection.indexOf("N") === -1) hinderDirection.push("N");
+      if (myY - targetY === 1 && !hinderDirection.includes("N")) hinderDirection.push("N");
     } else if (targetX > myX && (targetX - myX <= 3) && myY === targetY) {
       // targetAt = "E"
       if (myDirection === "E") hasTargetInFront = true;
       if (!targetDirection.includes("E")) targetDirection.push("E");
-      if (targetX - myX === 1 && hinderDirection.indexOf("E") === -1) hinderDirection.push("E");
+      if (targetX - myX === 1 && !hinderDirection.includes("E")) hinderDirection.push("E");
     } else if (myX > targetX && (myX - targetX <= 3) && myY === targetY) {
       // targetAt = "W"
       if (myDirection === "W") hasTargetInFront = true;
       if (!targetDirection.includes("W")) targetDirection.push("W");
-      if (myX - targetX === 1 && !includes.indexOf("W")) hinderDirection.push("W");
+      if (myX - targetX === 1 && !hinderDirection.includes("W")) hinderDirection.push("W");
     } else if (targetY > myY && (targetY - myY <= 3) && myX === targetX) {
       // targetAt = "S"
       if (myDirection === "S") hasTargetInFront = true;
