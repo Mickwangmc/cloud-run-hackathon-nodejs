@@ -180,7 +180,7 @@ app.post('/', function (req, res) {
         // Hit if in hit range, or move FORWARD
         res.send(myY - highestScorePlayer[3] <= 3 ? "T" : "F");
       } else {
-        res.send(myDirection === "E" ? myLeftDirection : myRightDirection);
+        res.send(myDirection === "E" ? "L" : "R");
       }
     } else {
       // On South side
@@ -188,7 +188,7 @@ app.post('/', function (req, res) {
         // Hit if in hit range, or move FORWARD
         res.send(highestScorePlayer[3] - myY <= 3 ? "T" : "F");
       } else {
-        res.send(myDirection === "E" ? myRightDirection : myLeftDirection);
+        res.send(myDirection === "E" ? "R" : "L");
       }
     }
   } else if (highestScorePlayer[3] === myY) {
@@ -199,7 +199,7 @@ app.post('/', function (req, res) {
         // Hit if in hit range, or move FORWARD
         res.send(highestScorePlayer[2] - myX <= 3 ? "T" : "F");
       } else {
-        res.send(myDirection === "N" ? myRightDirection : myLeftDirection);
+        res.send(myDirection === "N" ? "R" : "L");
       }
     } else {
       // On West side
@@ -207,7 +207,7 @@ app.post('/', function (req, res) {
         // Hit if in hit range, or move FORWARD
         res.send(myX - highestScorePlayer[2] <= 3 ? "T" : "F");
       } else {
-        res.send(myDirection === "N" ? myLeftDirection : myRightDirection);
+        res.send(myDirection === "N" ? "L" : "R");
       }
     }
   } else {
