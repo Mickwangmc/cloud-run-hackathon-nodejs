@@ -4,6 +4,46 @@ const bodyParser = require('body-parser');
 
 const DIRECTIONS = ["N", "E", "S", "W"]; // clockwise
 
+const getNextDirection = (myDirection, direction) => {
+  const currentIndex = DIRECTIONS.findIndex(ele => ele === myDirection);
+
+  if (direction === "RIGHT") {
+    if (currentIndex === DIRECTIONS.length - 1) {
+      return DIRECTIONS[0];
+    } else {
+      return DIRECTIONS[currentIndex + 1];
+    }
+  } else {
+    if (currentIndex === 0) {
+      return DIRECTIONS[currentIndex.length - 1];
+    } else {
+      return DIRECTIONS[currentIndex - 1];
+    }
+  }
+}
+
+const getBasicMove = (myX, myY, myDirection, w, h) => {
+  // !! This will go around border till encounter enemy
+  if (myX === 0 && myDirection === "W") {
+    // At the left border
+    // res.send(myY === 0 ? "L" : "R");
+    return myY === 0 ? "L" : "R"
+  } else if (myX + 1 === w && myDirection === "E") {
+    // At the right borded
+    // res.send(myY === 0 ? "R" : "L");
+    return myY === 0 ? "R" : "L"
+  } else if (myY === 0 && myDirection === "N") {
+    // res.send(myX + 1 === w ? "L" : "R");
+    return myX + 1 === w ? "L" : "R"
+  } else if (myY + 1 === h && myDirection === "S") {
+    // res.send(myX + 1 === w ? "R" : "L");
+    return myX + 1 === w ? "R" : "L"
+  } else {
+    // res.send("F");
+    return "F"
+  }
+}
+
 app.use(bodyParser.json());
 
 app.get('/', function (req, res) {
@@ -20,65 +60,95 @@ app.post('/', function (req, res) {
   } = req.body;
 
   const { x: myX, y: myY, direction: myDirection, wasHit } = state[myId];
-
-  if (wasHit) {
-    // TODO: check direction
-    const moves = ['F', 'L', 'R'];
-    res.send(moves[Math.floor(Math.random() * moves.length)]);
-  }
-
+  const myRightDirection = getNextDirection(myDirection, "RIGHT");
+  const myLeftDirection = getNextDirection(myDirection, "LEFT");
+  const myBasicMove = getBasicMove(myX, myY, myDirection, dims[0], dims[1])
   const enemyIds = Object.keys(state).filter(id => id !== myId);
 
-  let targetAt = null;
-  let targetDirection = [];
-  console.log(`> myX: ${myX}, myY: ${myY}, myDirection: ${myDirection}`)
+  // let targetAt = null;
+  let hasTargetInFront = false;
+  let targetDirection = [];  // possible targets
+  let hinderDirection = [];  // hinder my fallback
+  console.log(`> myX: ${myX}, myY: ${myY}, myDirection: ${myDirection}, wasHit: ${wasHit}`)
+  console.log(`> myRightDirection: ${myRightDirection}, myLeftDirection: ${myLeftDirection}`)
 
-  // 1. Check is any enemy in hit range. If has, track its direction
-
+  // 1. Check if any one in my range and direction
   enemyIds.forEach(id => {
     const { x: targetX, y: targetY } = state[id];
 
     if (myY - targetY <= 3 && myX === targetX) {
-      targetAt = "N"
-      targetDirection.push("N");
+      // targetAt = "N"
+      if (myDirection === "N") hasTargetInFront = true;
+      if (!targetDirection.includes("N")) targetDirection.push("N");
+      if (myY - targetY === 1 && hinderDirection.indexOf("N") === -1) hinderDirection.push("N");
     } else if (targetX - myX <= 3 && myY === targetY) {
-      targetAt = "E"
-      targetDirection.push("E");
+      // targetAt = "E"
+      if (myDirection === "E") hasTargetInFront = true;
+      if (!targetDirection.includes("E")) targetDirection.push("E");
+      if (targetX - myX === 1 && hinderDirection.indexOf("E") === -1) hinderDirection.push("E");
     } else if (myX - targetX <= 3 && myY === targetY) {
-      targetAt = "W"
-      targetDirection.push("W");
+      // targetAt = "W"
+      if (myDirection === "W") hasTargetInFront = true;
+      if (!targetDirection.includes("W")) targetDirection.push("W");
+      if (myX - targetX === 1 && !includes.indexOf("W")) hinderDirection.push("W");
     } else if (targetY - myY <= 3 && myX === targetX) {
-      targetAt = "S"
-      targetDirection.push("S");
+      // targetAt = "S"
+      if (myDirection === "S") hasTargetInFront = true;
+      if (!targetDirection.includes("S")) targetDirection.push("S");
+      if (targetY - myY === 1 && !hinderDirection.includes("S")) hinderDirection.push("S");
     }
   })
-  console.log(`>> targetAt: ${targetAt}`);
+  console.log(`>> hasTargetInFront: ${hasTargetInFront}`)
   console.log(`>> targetDirection: ${targetDirection.join(",")}`);
+  console.log(`>> hinderDirection: ${hinderDirection.join(",")}`);
 
-  if (targetAt) {
-    // 2. If any enemy target in hit range, decide hit or turn direction to it.
-    const myDirectionIndex = DIRECTIONS.findIndex(ele => ele === myDirection);
-    const targetDirectionIndex = DIRECTIONS.findIndex(ele => ele === targetAt);
-    const diff = myDirectionIndex - targetDirectionIndex;
-    console.log(`>> diff: ${diff}`)
-    if (diff === 0) {
-      // 2-1. In FRONT of me
-      res.send("T");
-    } else if (diff === 1) {
-      // 2-2. On my LEFT
+  // 2. Decide run or hit
+  if (wasHit) {
+    // 2-1. Now is under attack, run
+    if (hinderDirection.includes(myDirection)) {
+      // FRONT is blocked, find other way
+
+      if (hinderDirection.includes(myRightDirection)) {
+        // RIGHT hand side is blocked, TURN LEFT
+        res.send("L")
+      } else {
+        // RIGHT hand side is clear, TURN RIGHT
+        res.send("R");
+      }
+    } else {
+      // FRONT is clear, check is able MOVE FORWARD or not. If not, turn direction.
+      res.send(myBasicMove);
+    }
+  }
+
+  // console.log(`>> targetAt: ${targetAt}`);
+
+  if (hasTargetInFront) {
+    // 2-2. Now is not under attack, if has any target in FRONT, hit!
+    res.send("T");
+  }
+
+  if (targetDirection.length > 0) {
+    // 2-3. No target in FRONT, but other direction has
+    if (targetDirection.includes(myRightDirection)) {
+      // RIGHT has
+      res.send("R");
+    } else if (targetDirection.includes(myLeftDirection)) {
+      // LEFT has
       res.send("L");
     } else {
-      // 2-3. On my RIGHT or BACK
-      res.send("R");
+      // BACK has
+      res.send("L");
     }
-  } else {
-    // 3. If no any enemy in attack range, decide go forward or turn direction
-    // TODO: to the direction without any enemy
-    // 4. Maybe could chase the nearest one?
-    // consider dimension and my position, and my direction
-    const moves = ['F', 'L', 'R'];
-    res.send(moves[Math.floor(Math.random() * moves.length)]);
   }
+
+  // 3. No target in any direction, basic move
+  res.send(myBasicMove);
+
+  // 4. Maybe could chase the nearest one?
+  // consider dimension and my position, and my direction
+  // const moves = ['F', 'L', 'R'];
+  // res.send(moves[Math.floor(Math.random() * moves.length)]);
 });
 
 app.listen(process.env.PORT || 8080);
