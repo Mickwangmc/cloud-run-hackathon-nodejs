@@ -87,22 +87,22 @@ app.post('/', function (req, res) {
   enemyIds.forEach(id => {
     const { x: targetX, y: targetY } = state[id];
 
-    if (myY - targetY <= 3 && myX === targetX) {
+    if (myY > targetY && (myY - targetY <= 3) && myX === targetX) {
       // targetAt = "N"
       if (myDirection === "N") hasTargetInFront = true;
       if (!targetDirection.includes("N")) targetDirection.push("N");
       if (myY - targetY === 1 && hinderDirection.indexOf("N") === -1) hinderDirection.push("N");
-    } else if (targetX - myX <= 3 && myY === targetY) {
+    } else if (targetX > myX && (targetX - myX <= 3) && myY === targetY) {
       // targetAt = "E"
       if (myDirection === "E") hasTargetInFront = true;
       if (!targetDirection.includes("E")) targetDirection.push("E");
       if (targetX - myX === 1 && hinderDirection.indexOf("E") === -1) hinderDirection.push("E");
-    } else if (myX - targetX <= 3 && myY === targetY) {
+    } else if (myX > targetX && (myX - targetX <= 3) && myY === targetY) {
       // targetAt = "W"
       if (myDirection === "W") hasTargetInFront = true;
       if (!targetDirection.includes("W")) targetDirection.push("W");
       if (myX - targetX === 1 && !includes.indexOf("W")) hinderDirection.push("W");
-    } else if (targetY - myY <= 3 && myX === targetX) {
+    } else if (targetY > myY && (targetY - myY <= 3) && myX === targetX) {
       // targetAt = "S"
       if (myDirection === "S") hasTargetInFront = true;
       if (!targetDirection.includes("S")) targetDirection.push("S");
