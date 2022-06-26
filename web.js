@@ -15,7 +15,7 @@ const getNextDirection = (myDirection, direction) => {
     }
   } else {
     if (currentIndex === 0) {
-      return DIRECTIONS[currentIndex.length - 1];
+      return DIRECTIONS[DIRECTIONS.length - 1];
     } else {
       return DIRECTIONS[currentIndex - 1];
     }
