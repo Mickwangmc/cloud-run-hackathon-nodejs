@@ -213,26 +213,42 @@ app.post('/', function (req, res) {
   } else {
     // In one of quadrants, move depends on my current direction
     if (myDirection === "N") {
-      if (highestScorePlayer[3] < myY && !hinderDirection.includes("N")) {
-        res.send("F");
+      if (highestScorePlayer[3] < myY) {
+        if (hinderDirection.includes("N")) {
+          res.send(highestScorePlayer[2] > myX ? "R" : "L");
+        } else {
+          res.send("F");
+        }
       } else {
         res.send(hinderDirection.includes(myLeftDirection) ? "R" : "L");
       }
     } else if (myDirection === "E") {
-      if (highestScorePlayer[2] > myX && !hinderDirection.includes("E")) {
-        res.send("F");
+      if (highestScorePlayer[2] > myX) {
+        if (hinderDirection.includes("E")) {
+          res.send(highestScorePlayer[3] > myY ? "R" : "L");
+        } else {
+          res.send("F");
+        }
       } else {
         res.send(hinderDirection.includes(myLeftDirection) ? "R" : "L");
       }
     } else if (myDirection === "S") {
-      if (highestScorePlayer[3] > myY && !hinderDirection.includes("S")) {
-        res.send("F");
+      if (highestScorePlayer[3] > myY) {
+        if (hinderDirection.includes("S")) {
+          res.send(highestScorePlayer[2] > myX ? "L" : "R");
+        } else {
+          res.send("F");
+        }
       } else {
         res.send(hinderDirection.includes(myLeftDirection) ? "R" : "L");
       }
     } else if (myDirection === "W") {
-      if (highestScorePlayer[2] < myX && !hinderDirection.includes("W")) {
-        res.send("F");
+      if (highestScorePlayer[2] < myX) {
+        if (hinderDirection.includes("W")) {
+          res.send(highestScorePlayer[3] > myY ? "L" : "R");
+        } else {
+          res.send("F");
+        }
       } else {
         res.send(hinderDirection.includes(myLeftDirection) ? "R" : "L");
       }
