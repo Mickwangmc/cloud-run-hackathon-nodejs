@@ -46,11 +46,11 @@ const getInitialHinder = (myX, myY, w, h) => {
   let result = [];
 
   if (myX === 0) {
-    result.push("E");
+    result.push("W");
   }
 
   if (myX + 1 === w) {
-    result.push("W");
+    result.push("E");
   }
 
   if (myY === 0) {
