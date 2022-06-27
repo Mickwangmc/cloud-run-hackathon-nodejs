@@ -4,6 +4,8 @@ const bodyParser = require('body-parser');
 
 const DIRECTIONS = ["N", "E", "S", "W"]; // clockwise
 
+let marchPosition = null;
+
 const getNextDirection = (myDirection, direction) => {
   const currentIndex = DIRECTIONS.findIndex(ele => ele === myDirection);
 
@@ -128,6 +130,60 @@ app.post('/', function (req, res) {
   console.log(`>> hinderDirection: ${hinderDirection.join(",")}`);
   console.log(`>> highestScorePlayer is ${highestScorePlayer[0]}, score: ${highestScorePlayer[1]}, position: (${highestScorePlayer[2]}, ${highestScorePlayer[3]})`)
 
+  // March mode
+  if (marchPosition) {
+    const pX = marchPosition[0];
+    const pY = marchPosition[1];
+    if (pX === myX && pY === myY) {
+      marchPosition = null;
+    } else if (pX === myX) {
+      // On the same X axis
+      if (myY > pY) {
+        // On North side
+        if (myDirection === "N" && !hinderDirection.includes("N")) {
+          res.send("F");
+          return;
+        } else {
+          res.send(myDirection === "E" ? "L" : "R");
+          return;
+        }
+      } else {
+        // On South side
+        if (myDirection === "S" && !hinderDirection.includes("S")) {
+          res.send("F");
+          return;
+        } else {
+          res.send(myDirection === "E" ? "R" : "L");
+          return;
+        }
+      }
+    } else if (pY === myY) {
+      // On the same Y axis
+      if (myY > pY) {
+        // On East side
+        if (myDirection === "E" && !hinderDirection.includes("E")) {
+          res.send("F");
+          return;
+        } else {
+          res.send(myDirection === "N" ? "R" : "L");
+          return;
+        }
+      } else {
+        // On West side
+        if (myDirection === "W" && !hinderDirection.includes("W")) {
+          res.send("F");
+          return;
+        } else {
+          res.send(myDirection === "N" ? "L" : "R");
+          return;
+        }
+      }
+    } else {
+      res.send("F");
+      return;
+    }
+  };
+
   // 2. Decide run or hit
   if (wasHit) {
     // 2-1. Now is under attack
@@ -148,112 +204,122 @@ app.post('/', function (req, res) {
   }
 
   // Normal Mode
-  // if (hasTargetInFront) {
-  //   // 2-2. Now is not under attack, if has any target in FRONT, hit!
-  //   res.send("T");
-  //   return;
-  // }
+  if (hasTargetInFront) {
+    // 2-2. Now is not under attack, if has any target in FRONT, hit!
+    res.send("T");
+    return;
+  }
 
-  // if (targetDirection.length > 0) {
-  //   // 2-3. No target in FRONT, but other direction has
-  //   if (targetDirection.includes(myRightDirection)) {
-  //     // RIGHT has
-  //     res.send("R");
-  //     return;
-  //   } else {
-  //     // (this includes targetDirection.includes(myLeftDirection) )
-  //     // LEFT or BACK has
-  //     res.send("L");
-  //     return;
-  //   }
-  // }
-
-  // // 3. No target in any direction, basic move
-  // res.send(myBasicMove);
-
-  // Chase Mode
-  if (highestScorePlayer[2] === myX) {
-    // On the same X axis
-    if (myY > highestScorePlayer[3]) {
-      // On North side
-      if (myDirection === "N") {
-        // Hit if in hit range, or move FORWARD
-        res.send(myY - highestScorePlayer[3] <= 3 ? "T" : "F");
-      } else {
-        res.send(myDirection === "E" ? "L" : "R");
-      }
+  if (targetDirection.length > 0) {
+    // 2-3. No target in FRONT, but other direction has
+    if (targetDirection.includes(myRightDirection)) {
+      // RIGHT has
+      res.send("R");
+      return;
     } else {
-      // On South side
-      if (myDirection === "S") {
-        // Hit if in hit range, or move FORWARD
-        res.send(highestScorePlayer[3] - myY <= 3 ? "T" : "F");
-      } else {
-        res.send(myDirection === "E" ? "R" : "L");
-      }
-    }
-  } else if (highestScorePlayer[3] === myY) {
-    // On the same Y axis
-    if (highestScorePlayer[2] > myX) {
-      // On East side
-      if (myDirection === "E") {
-        // Hit if in hit range, or move FORWARD
-        res.send(highestScorePlayer[2] - myX <= 3 ? "T" : "F");
-      } else {
-        res.send(myDirection === "N" ? "R" : "L");
-      }
-    } else {
-      // On West side
-      if (myDirection === "W") {
-        // Hit if in hit range, or move FORWARD
-        res.send(myX - highestScorePlayer[2] <= 3 ? "T" : "F");
-      } else {
-        res.send(myDirection === "N" ? "L" : "R");
-      }
-    }
-  } else {
-    // In one of quadrants, move depends on my current direction
-    if (myDirection === "N") {
-      if (highestScorePlayer[3] < myY) {
-        if (hinderDirection.includes("N")) {
-          res.send(highestScorePlayer[2] > myX ? "R" : "L");
-        } else {
-          res.send("F");
-        }
-      } else {
-        res.send(hinderDirection.includes(myLeftDirection) ? "R" : "L");
-      }
-    } else if (myDirection === "E") {
-      if (highestScorePlayer[2] > myX) {
-        if (hinderDirection.includes("E")) {
-          res.send(highestScorePlayer[3] > myY ? "R" : "L");
-        } else {
-          res.send("F");
-        }
-      } else {
-        res.send(hinderDirection.includes(myLeftDirection) ? "R" : "L");
-      }
-    } else if (myDirection === "S") {
-      if (highestScorePlayer[3] > myY) {
-        if (hinderDirection.includes("S")) {
-          res.send(highestScorePlayer[2] > myX ? "L" : "R");
-        } else {
-          res.send("F");
-        }
-      } else {
-        res.send(hinderDirection.includes(myLeftDirection) ? "R" : "L");
-      }
-    } else if (myDirection === "W") {
-      if (highestScorePlayer[2] < myX) {
-        if (hinderDirection.includes("W")) {
-          res.send(highestScorePlayer[3] > myY ? "L" : "R");
-        } else {
-          res.send("F");
-        }
-      } else {
-        res.send(hinderDirection.includes(myLeftDirection) ? "R" : "L");
-      }
+      // (this includes targetDirection.includes(myLeftDirection) )
+      // LEFT or BACK has
+      res.send("L");
+      return;
     }
   }
+
+  // 3. No target in any direction, basic move
+  res.send(myBasicMove);
+
+  // Chase Mode
+  // if (highestScorePlayer[2] === myX) {
+  //   // On the same X axis
+  //   if (myY > highestScorePlayer[3]) {
+  //     // On North side
+  //     if (myDirection === "N") {
+  //       // Hit if in hit range, or move FORWARD
+  //       res.send(myY - highestScorePlayer[3] <= 3 ? "T" : "F");
+  //     } else {
+  //       res.send(myDirection === "E" ? "L" : "R");
+  //     }
+  //   } else {
+  //     // On South side
+  //     if (myDirection === "S") {
+  //       // Hit if in hit range, or move FORWARD
+  //       res.send(highestScorePlayer[3] - myY <= 3 ? "T" : "F");
+  //     } else {
+  //       res.send(myDirection === "E" ? "R" : "L");
+  //     }
+  //   }
+  // } else if (highestScorePlayer[3] === myY) {
+  //   // On the same Y axis
+  //   if (highestScorePlayer[2] > myX) {
+  //     // On East side
+  //     if (myDirection === "E") {
+  //       // Hit if in hit range, or move FORWARD
+  //       res.send(highestScorePlayer[2] - myX <= 3 ? "T" : "F");
+  //     } else {
+  //       res.send(myDirection === "N" ? "R" : "L");
+  //     }
+  //   } else {
+  //     // On West side
+  //     if (myDirection === "W") {
+  //       // Hit if in hit range, or move FORWARD
+  //       res.send(myX - highestScorePlayer[2] <= 3 ? "T" : "F");
+  //     } else {
+  //       res.send(myDirection === "N" ? "L" : "R");
+  //     }
+  //   }
+  // } else {
+  //   // In one of quadrants, move depends on my current direction
+  //   if (myDirection === "N") {
+  //     if (highestScorePlayer[3] < myY) {
+  //       if (hinderDirection.includes("N")) {
+  //         res.send(highestScorePlayer[2] > myX ? "R" : "L");
+  //       } else {
+  //         res.send("F");
+  //       }
+  //     } else {
+  //       res.send(hinderDirection.includes(myLeftDirection) ? "R" : "L");
+  //     }
+  //   } else if (myDirection === "E") {
+  //     if (highestScorePlayer[2] > myX) {
+  //       if (hinderDirection.includes("E")) {
+  //         res.send(highestScorePlayer[3] > myY ? "R" : "L");
+  //       } else {
+  //         res.send("F");
+  //       }
+  //     } else {
+  //       res.send(hinderDirection.includes(myLeftDirection) ? "R" : "L");
+  //     }
+  //   } else if (myDirection === "S") {
+  //     if (highestScorePlayer[3] > myY) {
+  //       if (hinderDirection.includes("S")) {
+  //         res.send(highestScorePlayer[2] > myX ? "L" : "R");
+  //       } else {
+  //         res.send("F");
+  //       }
+  //     } else {
+  //       res.send(hinderDirection.includes(myLeftDirection) ? "R" : "L");
+  //     }
+  //   } else if (myDirection === "W") {
+  //     if (highestScorePlayer[2] < myX) {
+  //       if (hinderDirection.includes("W")) {
+  //         res.send(highestScorePlayer[3] > myY ? "L" : "R");
+  //       } else {
+  //         res.send("F");
+  //       }
+  //     } else {
+  //       res.send(hinderDirection.includes(myLeftDirection) ? "R" : "L");
+  //     }
+  //   }
+  // }
 });
+
+app.post('/march', function (req, res) {
+  console.log(`> req.body.pw: ${req.body.pw}`)
+  console.log(`> process.env.pw: ${process.env.pw}`)
+  if (req.body.pw !== process.env.pw) res.status(403);
+
+  if (req.body.marchPosition) {
+    marchPosition = req.body.marchPosition;
+  }
+})
 
 app.listen(process.env.PORT || 8080);
