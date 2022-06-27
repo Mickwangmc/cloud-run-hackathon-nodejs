@@ -181,7 +181,7 @@ app.post('/', function (req, res) {
       }
     } else if (pY === myY) {
       // On the same Y axis
-      if (myY > pY) {
+      if (myX < pX) {
         // On East side
         if (myDirection === "E" && !hinderDirection.includes("E")) {
           res.send("F");
@@ -206,8 +206,10 @@ app.post('/', function (req, res) {
         if (pY < myY) {
           if (hinderDirection.includes("N")) {
             res.send(pX > myX ? "R" : "L");
+            return;
           } else {
             res.send("F");
+            return;
           }
         } else {
           res.send(hinderDirection.includes(myLeftDirection) ? "R" : "L");
@@ -216,8 +218,10 @@ app.post('/', function (req, res) {
         if (pX > myX) {
           if (hinderDirection.includes("E")) {
             res.send(pY > myY ? "R" : "L");
+            return;
           } else {
             res.send("F");
+            return;
           }
         } else {
           res.send(hinderDirection.includes(myLeftDirection) ? "R" : "L");
@@ -226,8 +230,10 @@ app.post('/', function (req, res) {
         if (pY > myY) {
           if (hinderDirection.includes("S")) {
             res.send(pX > myX ? "L" : "R");
+            return;
           } else {
             res.send("F");
+            return;
           }
         } else {
           res.send(hinderDirection.includes(myLeftDirection) ? "R" : "L");
@@ -236,11 +242,14 @@ app.post('/', function (req, res) {
         if (pX < myX) {
           if (hinderDirection.includes("W")) {
             res.send(pY > myY ? "L" : "R");
+            return;
           } else {
             res.send("F");
+            return;
           }
         } else {
           res.send(hinderDirection.includes(myLeftDirection) ? "R" : "L");
+          return;
         }
       }
     }
