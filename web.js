@@ -315,10 +315,14 @@ app.post('/', function (req, res) {
 app.post('/march', function (req, res) {
   console.log(`> req.body.pw: ${req.body.pw}`)
   console.log(`> process.env.pw: ${process.env.pw}`)
-  if (req.body.pw !== process.env.pw) res.status(403);
-
-  if (req.body.marchPosition) {
-    marchPosition = req.body.marchPosition;
+  if (req.body.pw !== process.env.pw) {
+    res.status(403);
+    return;
+  }
+  console.log(`> req.body.position: ${req.body.position}`)
+  if (req.body.position && Array.isArray(req.body.position)) {
+    marchPosition = req.body.position;
+    res.send("OK")
   }
 })
 
