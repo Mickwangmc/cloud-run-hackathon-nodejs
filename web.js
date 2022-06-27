@@ -94,6 +94,7 @@ app.post('/', function (req, res) {
 
   console.log(`> myX: ${myX}, myY: ${myY}, myDirection: ${myDirection}, wasHit: ${wasHit}`)
   console.log(`> myRightDirection: ${myRightDirection}, myLeftDirection: ${myLeftDirection}, myBasicMove: ${myBasicMove}`)
+  console.log(`> marchPosition: (${marchPosition})`)
 
   // 1. Check if any one in my range and direction
   enemyIds.forEach(id => {
