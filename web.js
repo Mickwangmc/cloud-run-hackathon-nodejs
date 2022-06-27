@@ -76,14 +76,15 @@ app.get('/', function (req, res) {
 app.post('/', function (req, res) {
   // console.log(req.body);
   if (req.body.position && Array.isArray(req.body.position)) {
-    console.log(`> req.body.pw: ${req.body.pw}`)
-    console.log(`> process.env.pw: ${process.env.pw}`)
-    console.log(`> req.body.position: ${req.body.position}`)
     if (!req.body.pw || (req.body.pw !== process.env.pw)) {
-      res.status(403);
+      res.status(403).send("Not authorized.");
       return;
     }
-    dispatchPosition = req.body.position;
+    if (req.body.position === [999, 999]) {
+      dispatchPosition = null;
+    } else {
+      dispatchPosition = req.body.position;
+    }
     res.send("Set")
     return;
   };
@@ -332,19 +333,5 @@ app.post('/', function (req, res) {
   //   }
   // }
 });
-
-app.put('/', function (req, res) {
-  console.log(`> req.body.pw: ${req.body.pw}`)
-  console.log(`> process.env.pw: ${process.env.pw}`)
-  if (!req.body.pw || (req.body.pw !== process.env.pw)) {
-    res.status(403);
-    return;
-  }
-  console.log(`> req.body.position: ${req.body.position}`)
-  if (req.body.position && Array.isArray(req.body.position)) {
-    dispatchPosition = req.body.position;
-    res.send("OK")
-  }
-})
 
 app.listen(process.env.PORT || 8080);
