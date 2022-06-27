@@ -80,7 +80,7 @@ app.post('/', function (req, res) {
       res.status(403).send("Not authorized.");
       return;
     }
-    if (req.body.position === [999, 999]) {
+    if (req.body.position[0] >= 999 || req.body.position[1] >= 999) {
       dispatchPosition = null;
     } else {
       dispatchPosition = req.body.position;
@@ -201,8 +201,48 @@ app.post('/', function (req, res) {
         }
       }
     } else {
-      res.send("F");
-      return;
+      // In one of quadrants, move depends on my current direction
+      if (myDirection === "N") {
+        if (pY < myY) {
+          if (hinderDirection.includes("N")) {
+            res.send(pX > myX ? "R" : "L");
+          } else {
+            res.send("F");
+          }
+        } else {
+          res.send(hinderDirection.includes(myLeftDirection) ? "R" : "L");
+        }
+      } else if (myDirection === "E") {
+        if (pX > myX) {
+          if (hinderDirection.includes("E")) {
+            res.send(pY > myY ? "R" : "L");
+          } else {
+            res.send("F");
+          }
+        } else {
+          res.send(hinderDirection.includes(myLeftDirection) ? "R" : "L");
+        }
+      } else if (myDirection === "S") {
+        if (pY > myY) {
+          if (hinderDirection.includes("S")) {
+            res.send(pX > myX ? "L" : "R");
+          } else {
+            res.send("F");
+          }
+        } else {
+          res.send(hinderDirection.includes(myLeftDirection) ? "R" : "L");
+        }
+      } else if (myDirection === "W") {
+        if (pX < myX) {
+          if (hinderDirection.includes("W")) {
+            res.send(pY > myY ? "L" : "R");
+          } else {
+            res.send("F");
+          }
+        } else {
+          res.send(hinderDirection.includes(myLeftDirection) ? "R" : "L");
+        }
+      }
     }
   };
 
