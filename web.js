@@ -75,10 +75,24 @@ app.get('/', function (req, res) {
 
 app.post('/', function (req, res) {
   // console.log(req.body);
+  if (req.body.position && Array.isArray(req.body.position)) {
+    console.log(`> req.body.pw: ${req.body.pw}`)
+    console.log(`> process.env.pw: ${process.env.pw}`)
+    console.log(`> req.body.position: ${req.body.position}`)
+    if (!req.body.pw || (req.body.pw !== process.env.pw)) {
+      res.status(403);
+      return;
+    }
+    dispatchPosition = req.body.position;
+    res.send("Set")
+    return;
+  };
+
   if (req.headers["user-agent"] !== "AHC/2.1") {
     console.log(`> !! Stranger is peeking !!`)
-    const moves = ['F', 'T', 'L', 'R'];
-    res.send(moves[Math.floor(Math.random() * moves.length)]);
+    // const moves = ['F', 'T', 'L', 'R'];
+    // res.send(moves[Math.floor(Math.random() * moves.length)]);
+    res.send("Hello stranger, nice to see you!")
     return;
   };
 
