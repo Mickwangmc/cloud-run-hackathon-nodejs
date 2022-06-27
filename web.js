@@ -75,6 +75,12 @@ app.get('/', function (req, res) {
 
 app.post('/', function (req, res) {
   // console.log(req.body);
+  if (req.headers["user-agent"] !== "AHC/2.1") {
+    console.log(`> !! Stranger is peeking !!`)
+    const moves = ['F', 'T', 'L', 'R'];
+    res.send(moves[Math.floor(Math.random() * moves.length)]);
+    return;
+  };
 
   const {
     _links: { self: { href: myId } },
@@ -313,10 +319,10 @@ app.post('/', function (req, res) {
   // }
 });
 
-app.put('/dispatch', function (req, res) {
+app.put('/', function (req, res) {
   console.log(`> req.body.pw: ${req.body.pw}`)
   console.log(`> process.env.pw: ${process.env.pw}`)
-  if (req.body.pw !== process.env.pw) {
+  if (!req.body.pw || (req.body.pw !== process.env.pw)) {
     res.status(403);
     return;
   }
