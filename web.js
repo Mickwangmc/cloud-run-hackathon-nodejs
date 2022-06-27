@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 
 const DIRECTIONS = ["N", "E", "S", "W"]; // clockwise
 
-let marchPosition = null;
+let dispatchPosition = null;
 
 const getNextDirection = (myDirection, direction) => {
   const currentIndex = DIRECTIONS.findIndex(ele => ele === myDirection);
@@ -94,7 +94,7 @@ app.post('/', function (req, res) {
 
   console.log(`> myX: ${myX}, myY: ${myY}, myDirection: ${myDirection}, wasHit: ${wasHit}`)
   console.log(`> myRightDirection: ${myRightDirection}, myLeftDirection: ${myLeftDirection}, myBasicMove: ${myBasicMove}`)
-  console.log(`> marchPosition: (${marchPosition})`)
+  console.log(`> dispatchPosition: (${dispatchPosition})`)
 
   // 1. Check if any one in my range and direction
   enemyIds.forEach(id => {
@@ -131,12 +131,12 @@ app.post('/', function (req, res) {
   console.log(`>> hinderDirection: ${hinderDirection.join(",")}`);
   console.log(`>> highestScorePlayer is ${highestScorePlayer[0]}, score: ${highestScorePlayer[1]}, position: (${highestScorePlayer[2]}, ${highestScorePlayer[3]})`)
 
-  // March mode
-  if (marchPosition) {
-    const pX = marchPosition[0];
-    const pY = marchPosition[1];
+  // Dispatch mode
+  if (dispatchPosition) {
+    const pX = dispatchPosition[0];
+    const pY = dispatchPosition[1];
     if (pX === myX && pY === myY) {
-      marchPosition = null;
+      dispatchPosition = null;
     } else if (pX === myX) {
       // On the same X axis
       if (myY > pY) {
@@ -313,7 +313,7 @@ app.post('/', function (req, res) {
   // }
 });
 
-app.post('/march', function (req, res) {
+app.put('/dispatch', function (req, res) {
   console.log(`> req.body.pw: ${req.body.pw}`)
   console.log(`> process.env.pw: ${process.env.pw}`)
   if (req.body.pw !== process.env.pw) {
@@ -322,7 +322,7 @@ app.post('/march', function (req, res) {
   }
   console.log(`> req.body.position: ${req.body.position}`)
   if (req.body.position && Array.isArray(req.body.position)) {
-    marchPosition = req.body.position;
+    dispatchPosition = req.body.position;
     res.send("OK")
   }
 })
